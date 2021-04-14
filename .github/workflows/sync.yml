@@ -21,11 +21,8 @@ jobs:
         to:
           registry: https://registry.aliyuncs.com
         names:
-          - openresty/openresty:1.17.8.2-1-alpine
           - kube-apiserver:v1.18.17
         replace:
-          - old: openresty/
-            new: kubedog/openresty_
           - new: kubedog
         rules:
           - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
