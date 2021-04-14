@@ -17,7 +17,7 @@ jobs:
       run: |
         cat << EOF >config.yaml
         from:
-          registry: https://registry-1.docker.io
+          registry: https://k8s.gcr.io
         to:
           registry: https://registry.aliyuncs.com
         names:
