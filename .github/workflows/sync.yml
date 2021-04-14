@@ -1,7 +1,7 @@
 name: Sync images to Aliyun
 on:
-  schedule:
-    - cron: '0 0 * * *'
+#  schedule:
+#    - cron: '0 0 * * *'
   push:
     paths:
       - 'images.txt'
@@ -21,117 +21,10 @@ jobs:
         to:
           registry: https://registry.cn-hangzhou.aliyuncs.com
         names:
-          - library/nginx:1.19-alpine
-          - library/haproxy:2.3-alpine
-          - library/traefik:2.4.0
-          - openresty/openresty:1.19.3.1-alpine
-          - envoyproxy/envoy:v1.16.2
-          - osixia/keepalived:2.0.20
-          - setzero/chrony:3.5
-          - calico/typha
-          - calico/cni
-          - calico/node
-          - calico/kube-controllers
-          - calico/pod2daemon-flexvol
-          - calico/ctl
-          - jettech/kube-webhook-certgen
-          - kubernetesui/dashboard
-          - kubernetesui/metrics-scraper
+          - openresty/openresty
         replace:
           - old: openresty/
             new: kubedog/openresty_
-          - old: envoyproxy/
-            new: kubedog/envoyproxy_
-          - old: osixia/
-            new: kubedog/osixia_
-          - old: setzero/
-            new: kubedog/setzero_
-          - old: calico/
-            new: kubedog/calico_
-          - old: jettech/
-            new: kubedog/jettech_
-          - old: kubernetesui/
-            new: kubedog/kubernetesui_
-          - old: library
-            new: kubedog
-        rules:
-          - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
-        EOF
-        sync-images --config config.yaml
-    - name: Delete workflow runs
-      uses: GitRML/delete-workflow-runs@main
-      with:
-        retain_days: 7
-        keep_minimum_runs: 3
-
-
-  quay-to-aliyun:
-    runs-on: ubuntu-20.04
-    container: setzero/images-sync:0.3.1
-    env:
-      TO_USERNAME: ${{ secrets.TO_USERNAME }}
-      TO_PASSWORD: ${{ secrets.TO_PASSWORD }}
-    steps:
-    - name: Quay to Aliyun
-      run: |
-        cat << EOF >config.yaml
-        from:
-          registry: https://quay.io
-        to:
-          registry: https://registry.cn-hangzhou.aliyuncs.com
-        names:
-          - coreos/flannel
-          - jetstack/cert-manager-cainjector
-          - jetstack/cert-manager-webhook
-          - jetstack/cert-manager-controller
-        replace:
-          - old: coreos/
-            new: kubedog/coreos_
-          - old: jetstack/
-            new: kubedog/jetstack_
-        rules:
-          - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
-        EOF
-        sync-images --config config.yaml
-    - name: Delete workflow runs
-      uses: GitRML/delete-workflow-runs@main
-      with:
-        retain_days: 7
-        keep_minimum_runs: 3
-
-  gcr-to-aliyun:
-    runs-on: ubuntu-20.04
-    container: setzero/images-sync:0.3.1
-    env:
-      TO_USERNAME: ${{ secrets.TO_USERNAME }}
-      TO_PASSWORD: ${{ secrets.TO_PASSWORD }}
-    steps:
-    - name: Gcr to Aliyun
-      run: |
-        cat << EOF >config.yaml
-        from:
-          registry: https://k8s.gcr.io
-        to:
-          registry: https://registry.cn-hangzhou.aliyuncs.com
-        names:
-          - kube-apiserver
-          - kube-controller-manager
-          - kube-scheduler
-          - kube-proxy
-          - pause
-          - etcd
-          - coredns
-          - coredns/coredns
-          - ingress-nginx/controller
-          - metrics-server/metrics-server
-        replace:
-          - old: ingress-nginx/
-            new: kubedog/ingress-nginx_
-          - old: metrics-server/
-            new: kubedog/metrics-server_
-          - old: coredns/
-            new: kubedog/coredns/
-          - new: kubedog
         rules:
           - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
         EOF
