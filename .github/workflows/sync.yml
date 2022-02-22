@@ -184,16 +184,16 @@ jobs:
         to:
           registry: https://registry.aliyuncs.com
         names:
-          - karmada-scheduler:latest
-          - karmada-webhook:latest
-          - karmada-controller-manager:latest
-          - karmada-aggregated-apiserver:latest
-          - karmada-agent:latest
-          - karmada-scheduler-estimator:latest
+          - karmada/karmada-scheduler:latest
+          - karmada/karmada-webhook:latest
+          - karmada/karmada-controller-manager:latest
+          - karmadakarmada-aggregated-apiserver:latest
+          - karmada/karmada-agent:latest
+          - karmada/karmada-scheduler-estimator:latest
         replace:
           - old: karmada/
             new: kubedog/
-          - new: kubedog
+          - new: kubedog/
         rules:
           - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
         EOF
