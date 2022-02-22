@@ -187,7 +187,7 @@ jobs:
           - karmada/karmada-scheduler:latest
           - karmada/karmada-webhook:latest
           - karmada/karmada-controller-manager:latest
-          - karmadakarmada-aggregated-apiserver:latest
+          - karmada/karmada-aggregated-apiserver:latest
           - karmada/karmada-agent:latest
           - karmada/karmada-scheduler-estimator:latest
         replace:
