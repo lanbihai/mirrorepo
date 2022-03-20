@@ -43,6 +43,7 @@ jobs:
           - elastic/logstash:7.10.1
           - grafana/grafana:7.3.4
           - directxman12/k8s-prometheus-adapter:v0.8.2
+          - openkruise/kruise-manager:v1.0.1
         replace:
           - old: openresty/
             new: kubedog/openresty_
@@ -65,6 +66,8 @@ jobs:
           - old: grafana
             new: kubedog
           - old: directxman12
+            new: kubedog
+          - old: openkruise
             new: kubedog
         rules:
           - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
