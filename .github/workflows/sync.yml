@@ -22,6 +22,7 @@ jobs:
         to:
           registry: https://registry.aliyuncs.com
         names:
+          - openkruise/kruise-manager:v1.0.1
           - library/nginx:1.19-alpine
           - library/haproxy:2.3-alpine
           - library/traefik:2.4.0
@@ -43,8 +44,9 @@ jobs:
           - elastic/logstash:7.10.1
           - grafana/grafana:7.3.4
           - directxman12/k8s-prometheus-adapter:v0.8.2
-          - openkruise/kruise-manager:v1.0.1
         replace:
+          - old: openkruise
+            new: kubedog
           - old: openresty/
             new: kubedog/openresty_
           - old: envoyproxy/
@@ -66,8 +68,6 @@ jobs:
           - old: grafana
             new: kubedog
           - old: directxman12
-            new: kubedog
-          - old: openkruise
             new: kubedog
         rules:
           - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
