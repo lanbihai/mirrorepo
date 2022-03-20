@@ -23,51 +23,8 @@ jobs:
           registry: https://registry.aliyuncs.com
         names:
           - openkruise/kruise-manager:v1.0.1
-          - library/nginx:1.19-alpine
-          - library/haproxy:2.3-alpine
-          - library/traefik:2.4.0
-          - openresty/openresty:1.19.3.1-alpine
-          - envoyproxy/envoy:v1.16.2
-          - osixia/keepalived:2.0.20
-          - setzero/chrony:3.5
-          - calico/typha
-          - calico/cni:v1.10.0
-          - calico/node:v2.4.1
-          - calico/kube-controllers
-          - calico/pod2daemon-flexvol
-          - calico/ctl
-          - jettech/kube-webhook-certgen:v1.5.0
-          - kubernetesui/dashboard:v2.1.0
-          - kubernetesui/metrics-scraper:v1.0.6
-          - elastic/elasticsearch:7.10.1
-          - elastic/kibana:7.10.1
-          - elastic/logstash:7.10.1
-          - grafana/grafana:7.3.4
-          - directxman12/k8s-prometheus-adapter:v0.8.2
         replace:
           - old: openkruise
-            new: kubedog
-          - old: openresty/
-            new: kubedog/openresty_
-          - old: envoyproxy/
-            new: kubedog/envoyproxy_
-          - old: osixia/
-            new: kubedog/osixia_
-          - old: setzero/
-            new: kubedog/setzero_
-          - old: calico/
-            new: kubedog/calico_
-          - old: jettech/
-            new: kubedog/jettech_
-          - old: kubernetesui/
-            new: kubedog/kubernetesui_
-          - old: library
-            new: kubedog
-          - old: elastic
-            new: kubedog
-          - old: grafana
-            new: kubedog
-          - old: directxman12
             new: kubedog
         rules:
           - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
@@ -95,31 +52,10 @@ jobs:
         to:
           registry: https://registry.aliyuncs.com
         names:
-          - jetstack/cert-manager-cainjector
-          - jetstack/cert-manager-webhook
-          - jetstack/cert-manager-controller
-          - external_storage/nfs-client-provisioner:latest
           - coreos/flannel:v0.13.0
-          - coreos/kube-state-metrics:v1.9.7
-          - brancz/kube-rbac-proxy:v0.8.0
-          - prometheus/alertmanager:v0.21.0
-          - prometheus/node-exporter:v1.0.1
-          - prometheus/prometheus:v2.22.1
-          - prometheus-operator/prometheus-operator:v0.44.1
-          - prometheus-operator/prometheus-config-reloader:v0.44.1
         replace:
           - old: coreos/
             new: kubedog/coreos_
-          - old: jetstack/
-            new: kubedog/jetstack_
-          - old: external_storage
-            new: kubedog
-          - old: brancz
-            new: kubedog
-          - old: prometheus/
-            new: kubedog/
-          - old: prometheus-operator/
-            new: kubedog/
         rules:
           - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
         EOF
@@ -146,21 +82,7 @@ jobs:
           registry: https://registry.aliyuncs.com
         names:
           - kube-apiserver:v1.18.17
-          - kube-controller-manager:v1.18.17
-          - kube-scheduler:v1.18.17
-          - kube-proxy:v1.18.17
-          - etcd:3.4.13-0
-          - pause:3.2
-          - coredns/coredns:1.6.7
-          - ingress-nginx/controller:v0.43.0
-          - metrics-server/metrics-server:v0.4.1
         replace:
-          - old: ingress-nginx/
-            new: kubedog/ingress-nginx_
-          - old: metrics-server/
-            new: kubedog/metrics-server_
-          - old: coredns/
-            new: kubedog/
           - new: kubedog
         rules:
           - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
