@@ -22,9 +22,10 @@ jobs:
         to:
           registry: https://registry.aliyuncs.com
         names:
-          - openkruise/kruise-manager:v1.0.1
+          - metallb/speaker:v0.12.1
+          - metallb/controller:v0.12.1
         replace:
-          - old: openkruise
+          - old: metallb
             new: kubedog
         rules:
           - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
