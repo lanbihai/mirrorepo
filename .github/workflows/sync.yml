@@ -25,8 +25,8 @@ jobs:
           - metallb/speaker:v0.12.1
           - metallb/controller:v0.12.1
         replace:
-          - old: metallb
-            new: kubedog
+          - old: metallb/
+            new: kubedog/
         rules:
           - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
         EOF
@@ -53,10 +53,11 @@ jobs:
         to:
           registry: https://registry.aliyuncs.com
         names:
-          - coreos/flannel:v0.13.0
+          - metallb/speaker:v0.12.1
+          - metallb/controller:v0.12.1
         replace:
-          - old: coreos/
-            new: kubedog/coreos_
+          - old: metallb/
+            new: kubedog/
         rules:
           - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
         EOF
