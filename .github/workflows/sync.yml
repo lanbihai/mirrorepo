@@ -7,40 +7,9 @@ on:
 #      - 'example/variables.yaml'
       - 'images.txt'
 jobs:
-  dockerhub-to-aliyun:
-    runs-on: ubuntu-20.04
-    container: setzero/images-sync:0.3.1
-    env:
-      TO_USERNAME: ${{ secrets.TO_USERNAME }}
-      TO_PASSWORD: ${{ secrets.TO_PASSWORD }}
-    steps:
-    - name: Dockerhub to Aliyun
-      run: |
-        cat << EOF >config.yaml
-        from:
-          registry: https://registry-1.docker.io
-        to:
-          registry: https://registry.aliyuncs.com
-        names:
-          - metallb/speaker:v0.12.1
-          - metallb/controller:v0.12.1
-        replace:
-          - old: metallb/
-            new: kubedog/
-        rules:
-          - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
-        EOF
-        sync-images --config config.yaml
-    - name: Delete workflow runs
-      uses: GitRML/delete-workflow-runs@main
-      with:
-        retain_days: 7
-        keep_minimum_runs: 3
-
-
   quay-to-aliyun:
     runs-on: ubuntu-20.04
-    container: setzero/images-sync:0.3.1
+    container: setzero/registry-manager
     env:
       TO_USERNAME: ${{ secrets.TO_USERNAME }}
       TO_PASSWORD: ${{ secrets.TO_PASSWORD }}
@@ -48,85 +17,32 @@ jobs:
     - name: Quay to Aliyun
       run: |
         cat << EOF >config.yaml
-        from:
-          registry: https://quay.io
-        to:
-          registry: https://registry.aliyuncs.com
-        names:
-          - metallb/speaker:v0.12.1
-          - metallb/controller:v0.12.1
-        replace:
-          - old: metallb/
-            new: kubedog/
-        rules:
-          - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
+        registries:
+          aliyuncs:
+            registry: https://registry.aliyuncs.com
+            username: ${{ secrets.TO_USERNAME }}
+            password: ${{ secrets.TO_PASSWORD }}
+          quay:
+            registry: https://quay.io
+            repositories:
+              - jetstack/cert-manager-ctl
+              - jetstack/cert-manager-cainjector
+              - jetstack/cert-manager-webhook
+              - jetstack/cert-manager-controller
+        sync-policy:
+          from: quay
+          to: aliyuncs
+          dry-run: false
+          replace:
+            - old: jetstack/
+              new: kubedog/jetstack_
+          filters:
+            - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
         EOF
-        sync-images --config config.yaml
+        registry-manager sync -c config.yaml
     - name: Delete workflow runs
       uses: GitRML/delete-workflow-runs@main
       with:
         retain_days: 7
         keep_minimum_runs: 3
-
-  gcr-to-aliyun:
-    runs-on: ubuntu-20.04
-    container: setzero/images-sync:0.3.1
-    env:
-      TO_USERNAME: ${{ secrets.TO_USERNAME }}
-      TO_PASSWORD: ${{ secrets.TO_PASSWORD }}
-    steps:
-    - name: Gcr to Aliyun
-      run: |
-        cat << EOF >config.yaml
-        from:
-          registry: https://k8s.gcr.io
-        to:
-          registry: https://registry.aliyuncs.com
-        names:
-          - kube-apiserver:v1.18.17
-        replace:
-          - new: kubedog
-        rules:
-          - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
-        EOF
-        sync-images --config config.yaml
-    - name: Delete workflow runs
-      uses: GitRML/delete-workflow-runs@main
-      with:
-        retain_days: 7
-        keep_minimum_runs: 3
-
-  huaweicloud-to-aliyun:
-    runs-on: ubuntu-20.04
-    container: setzero/images-sync:0.3.1
-    env:
-      TO_USERNAME: ${{ secrets.TO_USERNAME }}
-      TO_PASSWORD: ${{ secrets.TO_PASSWORD }}
-    steps:
-    - name: Huaweicloud to Aliyun
-      run: |
-        cat << EOF >config.yaml
-        from:
-          registry: https://swr.ap-southeast-1.myhuaweicloud.com
-        to:
-          registry: https://registry.aliyuncs.com
-        names:
-          - karmada/karmada-scheduler:latest
-          - karmada/karmada-webhook:latest
-          - karmada/karmada-controller-manager:latest
-          - karmada/karmada-aggregated-apiserver:latest
-          - karmada/karmada-agent:latest
-          - karmada/karmada-scheduler-estimator:latest
-        replace:
-          - old: karmada/
-            new: kubedog/
-          - new: kubedog/
-        rules:
-          - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
-        EOF
-        sync-images --config config.yaml
-    - name: Delete workflow runs
-      uses: GitRML/delete-workflow-runs@main
-      with:
-        retain_days: 7
-        keep_minimum_runs: 3
+  
