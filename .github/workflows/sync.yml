@@ -22,7 +22,7 @@ jobs:
         to:
           registry: https://registry.aliyuncs.com
         names:
-          - openkruise/kruise-manager:v1.0.1
+          - openkruise/kruise-manager:v1.3.0
           - library/nginx:1.19-alpine
           - library/haproxy:2.3-alpine
           - library/traefik:2.4.0
@@ -95,9 +95,9 @@ jobs:
         to:
           registry: https://registry.aliyuncs.com
         names:
-          - jetstack/cert-manager-cainjector
-          - jetstack/cert-manager-webhook
-          - jetstack/cert-manager-controller
+          - jetstack/cert-manager-cainjector:v1.7.1
+          - jetstack/cert-manager-webhook:v1.7.1
+          - jetstack/cert-manager-controller:v1.7.1
           - external_storage/nfs-client-provisioner:latest
           - coreos/flannel:v0.13.0
           - coreos/kube-state-metrics:v1.9.7
