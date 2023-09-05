@@ -7,6 +7,57 @@ on:
 #      - 'example/variables.yaml'
       - 'images.txt'
 jobs:
+  dockerhub-to-aliyun:
+    runs-on: ubuntu-20.04
+    container: setzero/registry-manager
+    env:
+      TO_USERNAME: ${{ secrets.TO_USERNAME }}
+      TO_PASSWORD: ${{ secrets.TO_PASSWORD }}
+    steps:
+    - name: Dockerhub to Aliyun
+      run: |
+        cat << EOF >config.yaml
+        registries:
+          aliyuncs:
+            registry: https://registry.aliyuncs.com
+            username: $TO_USERNAME
+            password: $TO_PASSWORD
+          dockerhub:
+            registry: https://registry-1.docker.io
+            repositories:
+              - cfssl/cfssl:latest
+              - bitnami/kubectl:latest
+              - karmada/karmada-aggregated-apiserver:v1.7.0
+              - karmada/karmada-controller-manager:v1.7.0
+              - karmada/karmada-scheduler:v1.7.0
+              - karmada/karmada-scheduler-estimator:v1.7.0
+              - karmada/karmada-descheduler:v1.7.0
+              - karmada/karmada-search:v1.7.0
+              - karmada/karmada-webhook:v1.7.0
+        sync-policy:
+          from: dockerhub
+          to: aliyuncs
+          dry-run: false
+          #force: true
+          replace:
+            - old: cfssl/
+              new: kubedog/
+            - old: bitnami/
+              new: kubedog/
+            - old: karmada/
+              new: kubedog/
+            - new: kubedog
+          filters:
+            - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
+        EOF
+        registry-manager sync -c config.yaml
+
+    - name: Delete workflow runs
+      uses: GitRML/delete-workflow-runs@main
+      with:
+        retain_days: 7
+        keep_minimum_runs: 3
+
   quay-to-aliyun:
     runs-on: ubuntu-20.04
     container: setzero/registry-manager
@@ -36,6 +87,7 @@ jobs:
           replace:
             - old: metallb/
               new: kubedog/metallb_
+            - new: kubedog
           filters:
             - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
         EOF
@@ -65,6 +117,9 @@ jobs:
           k8s:
             registry: https://registry.k8s.io
             repositories:
+              - kube-apiserver:v1.25.4
+              - kube-controller-manager:v1.25.4
+              - etcd:3.5.9-0
               - ingress-nginx/controller:v1.8.1
               - ingress-nginx/kube-webhook-certgen:v20230407
               - metrics-server/metrics-server:v0.4.5
