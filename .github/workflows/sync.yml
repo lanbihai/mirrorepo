@@ -46,3 +46,45 @@ jobs:
       with:
         retain_days: 7
         keep_minimum_runs: 3
+
+  k8s-to-aliyun:
+    runs-on: ubuntu-20.04
+    container: setzero/registry-manager
+    env:
+      TO_USERNAME: ${{ secrets.TO_USERNAME }}
+      TO_PASSWORD: ${{ secrets.TO_PASSWORD }}
+    steps:
+    - name: k8s to Aliyun
+      run: |
+        cat << EOF >config.yaml
+        registries:
+          aliyuncs:
+            registry: https://registry.aliyuncs.com
+            username: ${{ secrets.TO_USERNAME }}
+            password: ${{ secrets.TO_PASSWORD }}
+          k8s:
+            registry: https://registry.k8s.io
+            repositories:
+              - ingress-nginx/controller:v1.8.1
+              - ingress-nginx/kube-webhook-certgen:v20230407
+              - metrics-server/metrics-server:v0.4.5
+        sync-policy:
+          from: k8s
+          to: aliyuncs
+          dry-run: false
+          replace:
+            - old: ingress-nginx/
+              new: kubedog/ingress-nginx_
+            - old: metrics-server/
+              new: kubedog/
+            - new: kubedog
+          filters:
+            - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
+        EOF
+        registry-manager sync -c config.yaml
+
+    - name: Delete workflow runs
+      uses: GitRML/delete-workflow-runs@main
+      with:
+        retain_days: 7
+        keep_minimum_runs: 3
