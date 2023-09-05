@@ -7,82 +7,9 @@ on:
 #      - 'example/variables.yaml'
       - 'images.txt'
 jobs:
-  dockerhub-to-aliyun:
-    runs-on: ubuntu-20.04
-    container: setzero/images-sync:0.3.1
-    env:
-      TO_USERNAME: ${{ secrets.TO_USERNAME }}
-      TO_PASSWORD: ${{ secrets.TO_PASSWORD }}
-    steps:
-    - name: Dockerhub to Aliyun
-      run: |
-        cat << EOF >config.yaml
-        from:
-          registry: https://registry-1.docker.io
-        to:
-          registry: https://registry.aliyuncs.com
-        names:
-          - openkruise/kruise-manager:v1.3.0
-          - library/nginx:1.19-alpine
-          - library/haproxy:2.3-alpine
-          - library/traefik:2.4.0
-          - openresty/openresty:1.19.3.1-alpine
-          - envoyproxy/envoy:v1.16.2
-          - osixia/keepalived:2.0.20
-          - setzero/chrony:3.5
-          - calico/typha
-          - calico/cni:v1.10.0
-          - calico/node:v2.4.1
-          - calico/kube-controllers
-          - calico/pod2daemon-flexvol
-          - calico/ctl
-          - jettech/kube-webhook-certgen:v1.5.0
-          - kubernetesui/dashboard:v2.1.0
-          - kubernetesui/metrics-scraper:v1.0.6
-          - elastic/elasticsearch:7.10.1
-          - elastic/kibana:7.10.1
-          - elastic/logstash:7.10.1
-          - grafana/grafana:7.3.4
-          - directxman12/k8s-prometheus-adapter:v0.8.2
-        replace:
-          - old: openkruise
-            new: kubedog
-          - old: openresty/
-            new: kubedog/openresty_
-          - old: envoyproxy/
-            new: kubedog/envoyproxy_
-          - old: osixia/
-            new: kubedog/osixia_
-          - old: setzero/
-            new: kubedog/setzero_
-          - old: calico/
-            new: kubedog/calico_
-          - old: jettech/
-            new: kubedog/jettech_
-          - old: kubernetesui/
-            new: kubedog/kubernetesui_
-          - old: library
-            new: kubedog
-          - old: elastic
-            new: kubedog
-          - old: grafana
-            new: kubedog
-          - old: directxman12
-            new: kubedog
-        rules:
-          - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
-        EOF
-        sync-images --config config.yaml
-    - name: Delete workflow runs
-      uses: GitRML/delete-workflow-runs@main
-      with:
-        retain_days: 7
-        keep_minimum_runs: 3
-
-
   quay-to-aliyun:
     runs-on: ubuntu-20.04
-    container: setzero/images-sync:0.3.1
+    container: setzero/registry-manager
     env:
       TO_USERNAME: ${{ secrets.TO_USERNAME }}
       TO_PASSWORD: ${{ secrets.TO_PASSWORD }}
@@ -90,121 +17,30 @@ jobs:
     - name: Quay to Aliyun
       run: |
         cat << EOF >config.yaml
-        from:
-          registry: https://quay.io
-        to:
-          registry: https://registry.aliyuncs.com
-        names:
-          - jetstack/cert-manager-cainjector:v1.7.1
-          - jetstack/cert-manager-webhook:v1.7.1
-          - jetstack/cert-manager-controller:v1.7.1
-          - external_storage/nfs-client-provisioner:latest
-          - coreos/flannel:v0.13.0
-          - coreos/kube-state-metrics:v1.9.7
-          - brancz/kube-rbac-proxy:v0.8.0
-          - prometheus/alertmanager:v0.21.0
-          - prometheus/node-exporter:v1.0.1
-          - prometheus/prometheus:v2.22.1
-          - prometheus-operator/prometheus-operator:v0.44.1
-          - prometheus-operator/prometheus-config-reloader:v0.44.1
-          - metallb/controller:v0.13.10
-          - metallb/speaker:v0.13.10
-        replace:
-          - old: coreos/
-            new: kubedog/coreos_
-          - old: jetstack/
-            new: kubedog/jetstack_
-          - old: external_storage
-            new: kubedog
-          - old: brancz
-            new: kubedog
-          - old: prometheus/
-            new: kubedog/
-          - old: prometheus-operator/
-            new: kubedog/
-          - old: metallb/
-            new: kubedog/metallb_
-        rules:
-          - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
+        registries:
+          aliyuncs:
+            registry: https://registry.aliyuncs.com
+            username: ${{ secrets.TO_USERNAME }}
+            password: ${{ secrets.TO_PASSWORD }}
+          quay:
+            registry: https://quay.io
+            repositories:
+              - metallb/controller:v0.13.10
+              - metallb/speaker:v0.13.10
+              - metallb/controller:v0.13.11
+              - metallb/speaker:v0.13.11
+        sync-policy:
+          from: quay
+          to: aliyuncs
+          dry-run: false
+          replace:
+            - old: metallb/
+              new: kubedog/metallb_
+          filters:
+            - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
         EOF
-        sync-images --config config.yaml
-    - name: Delete workflow runs
-      uses: GitRML/delete-workflow-runs@main
-      with:
-        retain_days: 7
-        keep_minimum_runs: 3
+        registry-manager sync -c config.yaml
 
-  gcr-to-aliyun:
-    runs-on: ubuntu-20.04
-    container: setzero/images-sync:0.3.1
-    env:
-      TO_USERNAME: ${{ secrets.TO_USERNAME }}
-      TO_PASSWORD: ${{ secrets.TO_PASSWORD }}
-    steps:
-    - name: Gcr to Aliyun
-      run: |
-        cat << EOF >config.yaml
-        from:
-          registry: https://k8s.gcr.io
-        to:
-          registry: https://registry.aliyuncs.com
-        names:
-          - kube-apiserver:v1.18.17
-          - kube-controller-manager:v1.18.17
-          - kube-scheduler:v1.18.17
-          - kube-proxy:v1.18.17
-          - etcd:3.4.13-0
-          - pause:3.2
-          - coredns/coredns:1.6.7
-          - ingress-nginx/controller:v0.43.0
-          - metrics-server/metrics-server:v0.4.1
-        replace:
-          - old: ingress-nginx/
-            new: kubedog/ingress-nginx_
-          - old: metrics-server/
-            new: kubedog/metrics-server_
-          - old: coredns/
-            new: kubedog/
-          - new: kubedog
-        rules:
-          - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
-        EOF
-        sync-images --config config.yaml
-    - name: Delete workflow runs
-      uses: GitRML/delete-workflow-runs@main
-      with:
-        retain_days: 7
-        keep_minimum_runs: 3
-
-  huaweicloud-to-aliyun:
-    runs-on: ubuntu-20.04
-    container: setzero/images-sync:0.3.1
-    env:
-      TO_USERNAME: ${{ secrets.TO_USERNAME }}
-      TO_PASSWORD: ${{ secrets.TO_PASSWORD }}
-    steps:
-    - name: Huaweicloud to Aliyun
-      run: |
-        cat << EOF >config.yaml
-        from:
-          registry: https://swr.ap-southeast-1.myhuaweicloud.com
-        to:
-          registry: https://registry.aliyuncs.com
-        names:
-          - karmada/karmada-scheduler:latest
-          - karmada/karmada-webhook:latest
-          - karmada/karmada-controller-manager:latest
-          - karmada/karmada-aggregated-apiserver:latest
-          - karmada/karmada-agent:latest
-          - karmada/karmada-scheduler-estimator:latest
-        replace:
-          - old: karmada/
-            new: kubedog/
-          - new: kubedog/
-        rules:
-          - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
-        EOF
-        sync-images --config config.yaml
     - name: Delete workflow runs
       uses: GitRML/delete-workflow-runs@main
       with:
