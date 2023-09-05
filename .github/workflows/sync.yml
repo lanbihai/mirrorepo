@@ -107,6 +107,8 @@ jobs:
           - prometheus/prometheus:v2.22.1
           - prometheus-operator/prometheus-operator:v0.44.1
           - prometheus-operator/prometheus-config-reloader:v0.44.1
+          - metallb/controller:v0.13.10
+          - metallb/speaker:v0.13.10
         replace:
           - old: coreos/
             new: kubedog/coreos_
@@ -120,6 +122,8 @@ jobs:
             new: kubedog/
           - old: prometheus-operator/
             new: kubedog/
+          - old: metallb/
+            new: kubedog/metallb_
         rules:
           - ^[Vv]?\d+\.\d+(\.\d+)?(-\d+)?$
         EOF
